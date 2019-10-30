@@ -23,4 +23,9 @@ RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 RUN mkdir -p /etc/ansible
 RUN echo -e '[local]\nlocalhost ansible_connection=local' > /etc/ansible/hosts
 
+# Remove unnecessary getty and udev services that can result in high CPU usage when using
+# multiple containers with Molecule (https://github.com/ansible/molecule/issues/1104)
+RUN sed -i '/start_udev/s/^/#/g' /etc/rc.d/rc.sysinit \
+  && rm -f /etc/init/tty.conf
+
 CMD ["/sbin/init"]
